@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 const User = require('../../models/User');
+const auth = require('../../middleware/auth');
 
 //@route     /api/users -> Create an User
 //@desc      POST route
@@ -70,13 +71,13 @@ router.post('/', [
         jwt.sign(
             payload,
             config.get('jwtSecret'),
-            ({ expiresIn: 3600 }),
+            ({ expiresIn: 36000 }),
             ( err,token ) => {
                 if(err){
                     console.log("JWT Sign error",err);
                     throw err;
                 }
-                res.json({ token })
+                return res.json({ token })
             }
         );
 
@@ -87,6 +88,40 @@ router.post('/', [
     
 });
 
+//@route     /api/users/all -> Get all the users
+//@desc      GET route
+//@access    PRIVATE
+router.get('/all', auth, async (req,res) => {
+    try{
+        const allUsers = await User.find();
+        if(allUsers)
+            return res.json({ users : allUsers });
+        else
+            return res.status(400).send('No users found!');
+
+    } catch(error){
+        console.log("Error while getting all the users",error.message);
+        return res.status(500).send('Server Error');
+    }
+});
+
+//@route     /api/users/ -> delete an user
+//@desc      DELETE route
+//@access    PRIVATE
+router.delete('/', auth, async (req,res) => {
+    console.log("Delete this user ->",req.body);
+    let { username } = req.body;
+    try{
+        const deleteUser = await User.findOneAndDelete({ username });
+        if(deleteUser)
+            return res.send('User is deleted');
+        else
+            return res.status(400).send('No User found!');
+    } catch(error){
+        console.log("Error while deleting the user",error.message);
+        return res.status(500).send('Server Error');
+    }
+});
 
 
 module.exports = router;
