@@ -42,14 +42,14 @@ router.post('/', [
         let user = await User.findOne({ username });
         if(!user){
             console.log("Username does not exists!");
-            return res.status(400).json({ errors : [{ message : "Incorrect Username!" }]});
+            return res.status(400).json({ error : "Incorrect Username!" });
         }
 
         //Check if password is correct
         const isMatch = await bcrypt.compare( password,user.password );
         if(!isMatch){
             console.log("Password is incorrect!");
-            return res.status(400).json({ errors : [{ message : "Incorrect Password!" }]});
+            return res.status(400).json({ error : "Incorrect Password!" });
         }
 
         //Return jsonwebtoken and log-in User
@@ -62,7 +62,7 @@ router.post('/', [
         jwt.sign(
             payload,
             config.get('jwtSecret'),
-            ({ expiresIn: 3600 }),
+            ({ expiresIn: '3600s' }),
             ( err,token ) => {
                 if(err){
                     console.log("JWT Sign error",err);
@@ -73,7 +73,7 @@ router.post('/', [
         );
 
     } catch(error){
-        console.log("Error while registering User",error.message);
+        console.log("Error while logging an User",error.message);
         return res.status(500).send('Server Error');
     }
 });

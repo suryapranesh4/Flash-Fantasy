@@ -29,7 +29,7 @@ router.post('/', [
         let user = await User.findOne({ username });
         if(user){
             console.log("Username exists!");
-            return res.status(400).json({ errors : [{ message : "Username exists!" }]});
+            return res.status(400).json({ error : "Username exists!" });
         }
         else{
             console.log("It's a new username");
@@ -39,7 +39,7 @@ router.post('/', [
         let squad = await User.findOne({ squadname });
         if(squad){
             console.log("Squadname exists!");
-            return res.status(400).json({ error : [{ message : "SquadName exists!" }]});
+            return res.status(400).json({ error : "Squadname exists!" });
         }
         else{
             console.log("It's a new squadname");
@@ -71,7 +71,7 @@ router.post('/', [
         jwt.sign(
             payload,
             config.get('jwtSecret'),
-            ({ expiresIn: 36000 }),
+            { expiresIn : '3600s' },
             ( err,token ) => {
                 if(err){
                     console.log("JWT Sign error",err);

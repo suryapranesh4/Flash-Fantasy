@@ -44,12 +44,19 @@ router.post('/', [ auth, [
 
     try{
         //Create MatchPlayers Array to add the players of 2 teams of the match
-        let team_one_players = await Player.find({ team_halfname : team_one_halfname }).lean();
+        let team_one_players = await Player.find({ team_halfname : team_one_halfname })
+        .sort({ "position_halfname": 1 })
+        .lean();
         team_one_players = team_one_players.map((v)=>{return ({...v,'points':0})});
 
         //Create MatchPlayers Array to add the players of 2 teams of the match
-        let team_two_players = await Player.find({ team_halfname : team_two_halfname }).lean();
+        let team_two_players = await Player.find({ team_halfname : team_two_halfname })
+        .sort({ "position_halfname": 1 })
+        .lean();
         team_two_players = team_two_players.map((v)=>{return ({...v,'points':0})});
+
+        if(team_one_players.length === 0 || team_two_players.length === 0)
+            return res.status(400).send('No players found for the teams given!');
 
         let match_players = team_one_players.concat(team_two_players);
 
@@ -59,7 +66,7 @@ router.post('/', [ auth, [
             team_two_fullname,
             team_one_halfname,
             team_two_halfname,
-            start_time,
+            start_time: new Date(start_time).toISOString(),
             match_players,
             match_teams : [],
         });
@@ -81,8 +88,16 @@ router.post('/', [ auth, [
 //@access    PRIVATE
 router.get('/all', auth, async (req,res) => {
     try{
-        const allMatches = await Match.find({ $and:[ {"start_time":{ $gt: new Date() }} ] });
+        var d = new Date();    
+        d = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+        console.log("d",d);
+        // var yyyymmdd = d.toISOString().slice(0,0);
+        // console.log("datetime now",yyyymmdd);
+        const allMatches = await Match.find({ start_time : { $gt : d } })
+        .sort({ "start_time" : 1 });
         console.log("found matches ->",allMatches.length);
+        allMatches.forEach((m)=> console.log(m.start_time));
+
         if(allMatches)
             return res.json({ matches : allMatches });
         else
@@ -94,12 +109,12 @@ router.get('/all', auth, async (req,res) => {
     }
 });
 
-//@route     /api/matches -> Get a match by team names
-//@desc      GET route
+//@route     /api/matches/currentmatch -> Get a match by team names
+//@desc      POST route
 //@access    PRIVATE
-router.get('/', auth, async (req,res) => {
-    console.log("Get the match : Received->",req.query);
-    const { team_one_halfname,team_two_halfname } = req.query;
+router.post('/currentmatch', auth, async (req,res) => {
+    console.log("Get the match : Received->",req.body);
+    const { team_one_halfname,team_two_halfname } = req.body;
 
     if(!team_one_halfname && !team_two_halfname ){
         return res.status(400).json({ message: "Team names are required" });
@@ -110,15 +125,52 @@ router.get('/', auth, async (req,res) => {
         let matchDetails = await Match.findOne({ 
             team_one_halfname, 
             team_two_halfname
-        });
+        })
+        .sort({ "match_players.position_halfname": 1 });
         if(!matchDetails){
             console.log("No matches available with given team names!");
-            return res.status(400).json({ errors : [{ message : "No match available with given team names!" }]});
+            return res.status(400).json({ error : "No match available with given team names!" });
         }
-        
-        return res.json(matchDetails);
+        const user = await User.findById(req.user.id);
+        let currentteam = await matchDetails.match_teams.filter(team => team.username === user.username);
+        const currentteamexists = currentteam.length > 0;
+        currentteam = currentteam[0];
+        console.log("current team ",currentteam);
+
+        return res.json({ currentmatch : matchDetails, currentteam: currentteam ,currentteamexists});
     } catch(error){
-        console.log("Error while getting match detail",error.message);
+        console.log("Error while getting match detail by teamname",error.message);
+        return res.status(500).send('Server Error');
+    }
+    
+});
+
+//@route     /api/matches/username -> Get a match by username
+//@desc      GET route
+//@access    PRIVATE
+router.get('/username', auth, async (req,res) => {
+    console.log("Get the match of username");
+
+    const user = await User.findById(req.user.id);
+    console.log("The user is",user.username);
+
+    try{
+        //Check if the match is available with given username
+        console.log("find matches of",user.username);
+        let allMatches = await Match.find()
+        .sort({ "start_time" : 1 });
+        let usermatches = [];
+        await allMatches.map((match,index)=>{
+            match.match_teams.map((team,i)=>{
+                if(team.username == user.username)
+                    usermatches.push(match);
+            })
+        });
+
+        return res.json({ usermatches : usermatches });
+
+    } catch(error){
+        console.log("Error while getting match detail with username",error.message);
         return res.status(500).send('Server Error');
     }
     
@@ -185,32 +237,54 @@ router.patch('/addTeam', [ auth,
             return res.status(400).json({ message : 'No match found with given team names!'});
         }
 
+        //Check if user has a match_team in this match
+        // If yes, update the team..Else add a team
         let user_team_exists = match_exists.match_teams.map((team)=> { return team.username});
-        console.log("already added teams",user_team_exists);
+
+        //if yes,update match_team
         if(user_team_exists.includes(new_team.username)){
-            return res.status(400).json({ message : 'User already added a team to this match!'});
+            console.log("try to update with new match_team");   
+            let existing_match_teams = [...match_exists.match_teams];
+            let oldTeamIndex;
+            existing_match_teams.forEach((team,index)=>{
+                if(team.username === new_team.username)
+                    oldTeamIndex = index;
+            }) 
+            console.log("old team index",oldTeamIndex);
+            existing_match_teams.splice(oldTeamIndex, 1, new_team);
+            console.log("new array length",existing_match_teams.length);
+            let matchTeamUpdated = await Match.findOneAndUpdate(
+                {team_one_halfname,team_two_halfname},
+                {$set: 
+                    {
+                        match_teams : existing_match_teams
+                    }
+                }, 
+                {new: true}
+            );
+            console.log("Updated match_team",matchTeamUpdated);
+        }
+        //If no,add match_team
+        else{
+            let match_teams_with_newTeam = [...match_exists.match_teams];
+            match_teams_with_newTeam.push(new_team);
+            let updateMatchTeams = await Match.findOneAndUpdate(
+                {team_one_halfname,team_two_halfname},
+                {$set: 
+                    {
+                        match_teams : match_teams_with_newTeam
+                    }
+                }, 
+                {new: true}
+            );
+            console.log("Added new match_team",updateMatchTeams);
         }
 
-
-        console.log("try to update with new match_team");
-        //Create updated match teams array
-        let new_match_teams = [...match_exists.match_teams];
-        new_match_teams.push(new_team);
-        let updateMatch = await Match.findOneAndUpdate(
-            {team_one_halfname,team_two_halfname},
-            {$set: 
-                {
-                    match_teams : new_match_teams
-                }
-            }, 
-            {new: true}
-        );
-
-        return res.send('Added new match_team for the given match teams');
+        return res.json({ matchteamadd : true });
 
     } catch(error){
-        console.log("Error while adding a match_team",error.message);
-        return res.status(500).send('Server Error');
+        console.log("Error while adding/updating a match_team",error.message);
+        return res.status(500).json({ matchteamadd: false });
     }
 });
 
@@ -250,16 +324,27 @@ router.patch('/addPoints', [ auth,
             return res.status(400).json({ message : 'No match found with given team names!'});
         }
 
+        //Check if points is already added 
+        // if(match_exists.points_added){
+        //     return res.status(400).json({ message: 'Points already added for this match!'});
+        // }
+
         console.log("try to update with points for all match_teams");
         //Loop into matchTeams to add points 
         let new_match_teams = [...match_exists.match_teams];
         await new_match_teams.map((match_team)=>{
+            match_team.points = 0;
             match_team.players.map((player)=>{
                 points_info.map((points_player)=>{
                     if(player.firstname == points_player.firstname && 
                         player.lastname == points_player.lastname){
-                            player.points = points_player.points;
-                            match_team.points += points_player.points;
+                            if(player.isCaptain)
+                                player.points = points_player.points * 2;
+                            else if(player.isViceCaptain)
+                                player.points = points_player.points * 1.5;
+                            else
+                                player.points = points_player.points;
+                            match_team.points += player.points;
                         }
                 })
             })
@@ -285,16 +370,17 @@ router.patch('/addPoints', [ auth,
             {$set: 
                 {
                     match_teams : new_match_teams,
-                    match_players : points_info
+                    match_players : points_info,
+                    points_added: true
                 }
             }, 
             {new: true}
         );
 
-        return res.send('Added new match_team for the given match teams');
+        return res.send('Added points for the given match players');
 
     } catch(error){
-        console.log("Error while adding a match_team",error.message);
+        console.log("Error while adding points",error.message);
         return res.status(500).send('Server Error');
     }
 });

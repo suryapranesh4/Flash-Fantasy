@@ -14,7 +14,6 @@ module.exports = (req,res,next) => {
     try{
         //Check whether the token is not expired
         const decoded = jwt.verify( token, config.get('jwtSecret') );
-        console.log(" Decoded token is",decoded);
 
         req.user = decoded.user;
         next();
