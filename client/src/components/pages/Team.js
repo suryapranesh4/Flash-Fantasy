@@ -342,19 +342,18 @@ const Team = ({
                                     <p>Squad : </p>
                                     <h3 className="specialColor">&nbsp;{user.squadname}</h3>
                                 </div>
-                                <div className={ 
+                                {
                                     captainStatus && viceCaptainStatus &&
-                                    teamStatus && gkStatus && defStatus && midStatus && stkStatus &&
-                                    !(remainingTime(currentmatch.start_time,"matchstarted")) ? 
-                                            "submitButton" : "submitOpacity"}
-                                     onClick={() => 
-                                        captainStatus && viceCaptainStatus &&
-                                    teamStatus && gkStatus && defStatus && midStatus && stkStatus &&
-                                    !(remainingTime(currentmatch.start_time,"matchstarted")) ?
-                                        submitSquad(squadTeam) : ''}
-                                    >
-                                    Submit Team
-                                </div>
+                                        teamStatus && gkStatus && defStatus && midStatus && stkStatus &&
+                                        !(remainingTime(currentmatch.start_time,"matchstarted")) ?
+                                            <div className="submitButton" onClick={() => submitSquad(squadTeam)}>
+                                                Submit Team
+                                            </div> :
+                                            <div className="submitOpacity">
+                                            Submit Team
+                                            </div>
+                                }
+                                
                             </div>
                             <div className="flex-jc-ac">
                                 <div className="selectDiv">
