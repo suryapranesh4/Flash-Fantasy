@@ -27,7 +27,7 @@ export function remainingTime(time,place){
         if(s.getTime() > d.getTime())
             return (<div className="steelColorBack playMatch">View your team</div>);
         else
-            return (<div className="specialCrush playMatch">Edit your team</div>);
+            return (<div className="specialCrush playMatch">Manage team</div>);
     }
     else if(place === "leaderboard"){
         if(s.getTime() > d.getTime()){

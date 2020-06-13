@@ -20,11 +20,18 @@ router.post('/', [ auth, [
     const { fullname,halfname } = req.body;
 
     try{
+        //Check if user is admin
+        const user = await User.findById(req.user.id);
+        if(!(user.username === "Surya" || user.squadname === "Flash")){
+            console.log("Restricted access!!")
+            return res.status(400).json({ error : "Action Denied! You are'nt an admin" });
+        }
+
         //Check if fullname is available
         let fullteamname = await Team.findOne({ fullname });
         if(fullteamname){
             console.log("Team exists!");
-            return res.status(400).json({ errors : [{ message : "Team already exists!" }]});
+            return res.status(400).json({ error : "Team already exists!" });
         }
         else{
             console.log("It's a new team fullname");
@@ -34,7 +41,7 @@ router.post('/', [ auth, [
         let halfteamname = await User.findOne({ halfname });
         if(halfteamname){
             console.log("Team halfname exists!");
-            return res.status(400).json({ error : [{ message : "Team Halfname exists!" }]});
+            return res.status(400).json({ error : "Team Halfname exists!" });
         }
         else{
             console.log("It's a new team halfname");
@@ -50,7 +57,7 @@ router.post('/', [ auth, [
         await newTeam.save();
         console.log("New Team is added in DB");
         
-        return res.send('Team added succesfully!');
+        return res.send({ message : 'Team added succesfully!' });
 
     } catch(error){
         console.log("Error while adding a new team",error.message);

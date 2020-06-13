@@ -7,6 +7,7 @@
 
   --primary-red:#f53844;
   --primary-orange:#42378f;
+  --primary-gold:#ebc447;
   
   --primary-color: #17a2b8;
   --danger-color: #dc3545;
@@ -195,7 +196,7 @@ input{
 }
 
 .matchBoxParent{
-  border: 2px solid var(--primary-orange);
+  border: 2px solid var(--primary-red);
   box-shadow: 3px -3px 10px 1px #ccc;
   border-radius: 7px;
   margin-bottom: 1.75rem;
@@ -347,6 +348,10 @@ input{
   align-items: center;
 }
 
+.blackTR th{
+  background: var(--pure-black)!important;
+}
+
 .createEditButton{
   border: 1px solid var(--success-color);
   color: var(--success-color);
@@ -445,15 +450,17 @@ input{
 }
 
 .Dropdown-control{
-  padding: 0.2rem!important;
+  padding: 0.5rem!important;
   border-radius: 5px!important;
   cursor: pointer!important;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
+  min-width: 140px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .Dropdown-menu{
-  min-width: 100px!important;
-  margin-left: -30px!important;
   border-radius: 5px!important;
 }
 
@@ -466,9 +473,9 @@ input{
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-flow: column;
   width: 50%;
-  padding-left: 0.5rem;
-  font-size: 0.7rem;
+  padding-left: 0.5rem 0rem;
 }
 
 .captDiv{
@@ -480,6 +487,30 @@ input{
   padding: 0 0.5rem;
 }
 
+.marTB{
+  margin: 0.6rem 0;
+}
+
+.padTB{
+  padding: 1rem 0;
+}
+
+.normalBTN{
+  padding: 0.3rem;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.abs{
+  position: absolute;
+  right: 0;
+  top:0;
+  bottom: 0;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
 /* Text Styles*/
 .x-large {

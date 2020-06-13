@@ -31,7 +31,8 @@ const Login = ({
 
     const onChange = e => setLoginData({ ...loginData , [e.target.name] : e.target.value });
 
-    function handleLogin(){
+    function handleLogin(event){
+        event.preventDefault();
         if(username.length === 0)
             setError('Enter username');
         else if(password.length === 0)
@@ -47,7 +48,7 @@ const Login = ({
         <div>
             {loginL? <Loader/> : ''}
             <div className="flex-cen-min-height">
-                <form onSubmit={()=> handleLogin()}>
+                <form onSubmit={(event)=>handleLogin(event)} method="post">
                     <div className="inputs">
                         <p className="large">Username</p>
                         <input type="text" name="username" value={username} placeholder='User Name' autoComplete="off"
@@ -67,7 +68,8 @@ const Login = ({
                                 </div> :
                                 ''
                         }
-                    <div className="btn loginBTN mar-left" onClick={()=> handleLogin() }>
+                    <div className="btn loginBTN mar-left" onClick={(event)=> handleLogin(event) }>
+                        <input type="submit" style={{display:"none"}}/>                        
                         <p>Login</p>
                     </div>
                 </form>

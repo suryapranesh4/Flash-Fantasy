@@ -10,6 +10,7 @@ import Login from '../src/components/pages/Login';
 import Home from '../src/components/pages/Home';
 import Match from '../src/components/pages/Match';
 import Team from '../src/components/pages/Team';
+import Admin from '../src/components/pages/Admin';
 
 //Redux
 import { Provider } from 'react-redux';
@@ -40,6 +41,7 @@ const App = () => {
                 <PrivateRoute path="/home" component={Home}></PrivateRoute>
                 <PrivateRoute path="/match/:matchinfo" component={Match}></PrivateRoute>
                 <PrivateRoute path="/team" component={Team}></PrivateRoute>
+                <Route path="/admin" component={Admin}></Route>
               </Switch>
           </Router>
         </div>

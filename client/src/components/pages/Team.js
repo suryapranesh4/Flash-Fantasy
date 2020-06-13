@@ -61,17 +61,6 @@ const Team = ({
                 showTeamAddError(false);
             },3000);
         }
-
-        // if(squadTeam && squadTeam.length > 0){
-        //     let playerList = [];
-        //     squadTeam.forEach(p => 
-        //         playerList.push({
-        //             label: p.lastname,
-        //             value: p.firstname
-        //         })
-        //     );
-        //     setSelectPlayerList([...playerList]);
-        // }
     })
 
     useEffect(() => {
@@ -358,23 +347,27 @@ const Team = ({
                                     teamStatus && gkStatus && defStatus && midStatus && stkStatus &&
                                     !(remainingTime(currentmatch.start_time,"matchstarted")) ? 
                                             "submitButton" : "submitOpacity"}
-                                     onClick={() => submitSquad(squadTeam)}
+                                     onClick={() => 
+                                        captainStatus && viceCaptainStatus &&
+                                    teamStatus && gkStatus && defStatus && midStatus && stkStatus &&
+                                    !(remainingTime(currentmatch.start_time,"matchstarted")) ?
+                                        submitSquad(squadTeam) : ''}
                                     >
                                     Submit Team
                                 </div>
                             </div>
                             <div className="flex-jc-ac">
                                 <div className="selectDiv">
-                                    <p>Captain : </p>
+                                    <p className="specialColor"> Captain </p>
                                     <Dropdown onChange={(player) => chooseCaptain(player)} 
-                                              value={captain} 
-                                              options={selectPlayerList} />
+                                                    value={captain} 
+                                                    options={selectPlayerList} />
                                 </div>
                                 <div className="selectDiv">
-                                    <p>Vice Captain : </p>
+                                    <p className="crushColor"> Vice Captain </p>
                                     <Dropdown onChange={(player) => chooseViceCaptain(player)} 
-                                              value={vicecaptain} 
-                                              options={selectPlayerList}/>
+                                                value={vicecaptain} 
+                                                options={selectPlayerList}/>
                                 </div>
                             </div>
                             {
@@ -423,7 +416,7 @@ const Team = ({
                         currentmatch && currentmatch.match_players && currentmatch.match_players.length > 0 ?
                             <table cellSpacing="0" cellPadding="0">
                                 <thead>
-                                    <tr>
+                                    <tr className="blackTR">
                                         <th>Playername</th>
                                         <th>Position</th>
                                         <th>Club</th>

@@ -39,10 +39,18 @@ router.post('/', [ auth, [
     console.log(team_one_exists,team_two_exists);
 
     if(team_one_exists.length == 0 || team_two_exists.length == 0)
-        return res.status(400).json({ message : 'Teams must be created first to add a match!'});
+        return res.status(400).json({ error : 'Teams must be created first to add a match!'});
 
 
     try{
+         //Check if user is admin
+         const user = await User.findById(req.user.id);
+         if(!(user.username === "Surya" || user.squadname === "Flash")){
+             console.log("Restricted access!!")
+             return res.status(400).json({ error : "Action Denied! You are'nt an admin!" });
+         }
+
+         
         //Create MatchPlayers Array to add the players of 2 teams of the match
         let team_one_players = await Player.find({ team_halfname : team_one_halfname })
         .sort({ "position_halfname": 1 })
@@ -56,7 +64,10 @@ router.post('/', [ auth, [
         team_two_players = team_two_players.map((v)=>{return ({...v,'points':0})});
 
         if(team_one_players.length === 0 || team_two_players.length === 0)
-            return res.status(400).send('No players found for the teams given!');
+            return res.status(400).send({ error : 'No players found for the teams given!' });
+
+        if(team_one_players.length < 20 || team_two_players.length < 20)
+            return res.status(400).send({ error : 'A team must have atleast 20 players to add a match!' });
 
         let match_players = team_one_players.concat(team_two_players);
 
@@ -75,7 +86,7 @@ router.post('/', [ auth, [
         await newMatch.save();
         console.log("New Match is added in DB");
         
-        return res.send('Match added succesfully!');
+        return res.send({ message : 'Match added succesfully!' });
 
     } catch(error){
         console.log("Error while adding a new match",error.message);

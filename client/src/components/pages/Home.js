@@ -39,13 +39,13 @@ const Home = ({
 Home.propTypes = {
     auth : PropTypes.object,
     match : PropTypes.object,
+    getAllMatches : PropTypes.func.isRequired,
+    getUserMatches : PropTypes.func.isRequired,
 }
 
 const mapStateToProps = state => ({
     auth : state.auth,
     match : state.match,
-    getAllMatches : PropTypes.func.isRequired,
-    getUserMatches : PropTypes.func.isRequired,
 })
 
 export default connect(

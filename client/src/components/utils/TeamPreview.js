@@ -16,14 +16,14 @@ export const TeamPreview = (props) => {
                     <h3 className="specialColor">&nbsp;{squadname}</h3>
                 </div>
             </div>
-            <div className="flex-jc-ac">
-                <div className="selectDiv captDiv">
-                    <p>Captain : </p>
-                    <p className="specialColor">{captain}</p>
+            <div className="flex-jc-ac marTB">
+                <div className="selectDiv">
+                    <p> Captain </p>
+                    <p className="specialColor"> {captain} </p>
                 </div>
-                <div className="selectDiv captDiv">
-                    <p>Vice Captain : </p>
-                    <p className="specialColor">{vicecaptain}</p>
+                <div className="selectDiv">
+                    <p> Vice Captain </p>
+                    <p className="crushColor"> {vicecaptain} </p>
                 </div>
             </div>
             {

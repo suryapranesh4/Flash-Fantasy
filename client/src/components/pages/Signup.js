@@ -33,7 +33,8 @@ const Signup = ({
 
     const onChange = e => setSignupData({ ...signupData , [e.target.name] : e.target.value });
 
-    function handleSignup(){
+    function handleSignup(event){
+        event.preventDefault();
         if( username.length === 0 || squadname.length === 0 || password.length === 0 || cpassword.length === 0)
             setError('Please fill in the necessary fields!');
         else if(username === squadname){
@@ -56,7 +57,7 @@ const Signup = ({
             <div className="flex-cen-min-height">
                 <div className="flex-cen-min-height">
                     <h1 className="specialColor">Register account</h1>
-                    <form onSubmit={()=> handleSignup()}>
+                    <form onSubmit={(event)=>handleSignup(event)} method="post">
                         <div className="inputs">
                             <p>User name</p>
                             <input type="text" name="username" value={username} placeholder='User Name' autoComplete="off"
@@ -88,7 +89,10 @@ const Signup = ({
                                 </div> :
                                 ''
                         }
-                        <div className="btn loginBTN mar-left" onClick={()=> handleSignup()}>Sign Up</div>
+                        <div className="btn loginBTN mar-left" onClick={(event)=> handleSignup(event)}>
+                            <input type="submit" style={{display:"none"}} />
+                            Sign Up
+                        </div>
                     </form>
                     <div>Already an user, <span className="specialColor"><Link to="/login">Log In</Link></span></div>
                 </div>
