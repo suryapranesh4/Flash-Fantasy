@@ -15,6 +15,7 @@ import {
 import axios from "axios";
 import setAuthToken from "../utils/setAuthToken";
 
+console.log("BASE_URL :", process.env.BASE_URL);
 //Base URL - Backend
 axios.defaults.baseURL = process.env.BASE_URL || "http://localhost:5000";
 
