@@ -15,9 +15,12 @@ import {
 import axios from "axios";
 import setAuthToken from "../utils/setAuthToken";
 
-console.log("BASE_URL :", process.env.BASE_URL);
 //Base URL - Backend
-axios.defaults.baseURL = process.env.BASE_URL || "http://localhost:5000";
+const baseURL =
+  process.env.NODE_ENV === "production"
+    ? "https://flash-fantasy-api.onrender.com"
+    : "http://localhost:5000";
+axios.defaults.baseURL = baseURL;
 
 //Load an user
 export const loadUser = () => async (dispatch) => {
