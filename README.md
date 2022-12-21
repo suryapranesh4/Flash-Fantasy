@@ -18,10 +18,22 @@ MongoDB <br/>
 NPM
 
 
-[The Flash fantasy app](https://flash-fantasy.onrender.com/)
+[The Flash Fantasy App](https://flash-fantasy.onrender.com/)
 
 
 ## Screenshots of the app
 
+Login Screen:
+![Flash Fantasy](login.png "Flash Fantasy")
 
-![Dream Team Generator](screenshot.png "Dream Team Generator")
+
+Home Screen:
+![Flash Fantasy](home.png "Flash Fantasy")
+
+
+Matchday Screen:
+![Flash Fantasy](match.png "Flash Fantasy")
+
+
+Team Preview Screen:
+![Flash Fantasy](teampreview.png "Flash Fantasy")
